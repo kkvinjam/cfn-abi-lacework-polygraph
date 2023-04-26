@@ -1,33 +1,20 @@
 project:
-  name: update-me-to-project-repo-name
-  owner: quickstart@amazon.com
-  package_lambda: false
+  name: cfn-abi-lacework-polygraph
+  owner: jeff.fry@lacework.net
+  package_lambda: true
+  s3_regional_buckets: false
   regions:
-  - ap-northeast-1
-  - ap-northeast-2
-  - ap-southeast-1
-  - ap-southeast-2
-  - eu-central-1
-  - eu-west-1
-  - sa-east-1
-  - us-east-1
-  - us-west-1
   - us-west-2
 tests:
-  sample:
-    parameters:
-      Param1: 'Inputs to Stack'
-      # Examples: of other taskcat dynamic input parameters for more into see http://taskcat.io
-      #
-      #      AvailabilityZones: $[taskcat_genaz_3]
-      #      ByteValue: 1
-      #      PasswordA: $[taskcat_genpass_8A]
-      #      PasswordB: $[taskcat_genpass_32S]
-      #      RandomNumber: $[taskcat_random-numbers]
-      #      RandomString: $[taskcat_random-string]
-      #      StackName: TestStack
-      #      UUID: $[taskcat_genuuid]
-      #
+  cfn-abi-lacework-polygraph-multi-org-multi-sub-mapping:
     regions:
-    - us-east-1
-    template: templates/sample-workload.template.yaml
+      - us-west-2  # Control Tower Home region for Pilot
+    template: templates/cfn-abi-lacework-polygraph.template.yaml
+    parameters:
+      rSRAStagingS3Bucket: $[taskcat_autobucket]
+      pSRASourceS3BucketName: $[taskcat_autobucket]
+      pSRAS3BucketRegion: us-east-1  # Bucket region. Keep it to us-east-1 as all the resources are deployed in the region.
+      LaceworkURL: laceworkalliances.lacework.net
+      LaceworkAccessKeyID: LACEWORK_A0CF5408974238C70DB1CC9C6005B4D5A62C2BBBCE72962
+      LaceworkSecretKey: _6f931ad79e9423c0e877ec510963d928
+      LaceworkOrgSubAccountNames: cloud-engineering,dpaas
