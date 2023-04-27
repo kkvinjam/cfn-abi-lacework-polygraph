@@ -113,6 +113,13 @@ Metadata:
         default: Control Tower Regions Only
       pEnabledRegions:
         default: (Optional) Enabled Regions
+      # GuardDuty Configuration Properties
+      pAutoEnableS3Logs:
+        default: Auto Enable S3 Logs
+      pAutoEnableK8sLogs:
+        default: Auto Enable kubernetes Logs
+      pAutoEnableMalwareProtection:
+        default: Auto Enable malware protection
       # General Lambda Function Properties
       pCreateLambdaLogGroup:
         default: Create Lambda Log Group
@@ -267,6 +274,22 @@ Parameters:
       us-east-1,ap-southeast-2)
     Default: ''
     Description: (Optional) Enabled regions (AWS regions, separated by commas). Leave blank to enable all regions.
+    Type: String
+  # GuardDuty Configuration Properties
+  pAutoEnableS3Logs:
+    AllowedValues: [ 'true', 'false' ]
+    Default: 'true'
+    Description: Auto enable S3 logs
+    Type: String
+  pAutoEnableK8sLogs:
+    AllowedValues: [ 'true', 'false' ]
+    Default: 'false'
+    Description: Auto Enable kubernetes Logs
+    Type: String
+  pAutoEnableMalwareProtection:
+    AllowedValues: [ 'true', 'false' ]
+    Default: 'true'
+    Description: Auto Enable malware protection
     Type: String
   # General Lambda Function Properties
   pCreateLambdaLogGroup:
