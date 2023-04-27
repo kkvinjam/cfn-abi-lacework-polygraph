@@ -33,21 +33,21 @@ Metadata:
           - LaceworkSubAccountName
       - Label:
           default: Security Hub Configuration Properties
-          Parameters:
-            - pDisableSecurityHub
-            - pEnableSecurityBestPracticesStandard
-            - pEnableCISStandard
-            - pCISStandardVersion
-            - pEnablePCIStandard
-            - pRegionLinkingMode
-            - pControlTowerRegionsOnly
-            - pEnabledRegions
+        Parameters:
+          - pDisableSecurityHub
+          - pEnableSecurityBestPracticesStandard
+          - pEnableCISStandard
+          - pCISStandardVersion
+          - pEnablePCIStandard
+          - pRegionLinkingMode
+          - pControlTowerRegionsOnly
+          - pEnabledRegions
       - Label:
           default: GuardDuty Configuration Properties
-          Parameters:
-            - pAutoEnableS3Logs
-            - pAutoEnableK8sLogs
-            - pAutoEnableMalwareProtection
+        Parameters:
+          - pAutoEnableS3Logs
+          - pAutoEnableK8sLogs
+          - pAutoEnableMalwareProtection
       - Label:
           default: General Lambda Function Properties
         Parameters:
@@ -415,7 +415,7 @@ Resources:
       TemplateURL: !Sub "https://${pSRASourceS3BucketName}.s3.${pSRAS3BucketRegion}.${AWS::URLSuffix}/${pSRAStagingS3KeyPrefix}/submodules/lacework-control-tower-cfn/templates/control-tower-integration.template.yaml"
       Parameters:
         S3BucketName: !Ref pSRASourceS3BucketName
-        S3KeyPrefix: !Ref pSRAStagingS3KeyPrefix
+        S3KeyPrefix: lacework-control-tower-cfn
         LaceworkURL: !Ref LaceworkURL
         LaceworkOrgSubAccountNames: !Ref LaceworkOrgSubAccountNames
         LaceworkSubAccountName: !Ref LaceworkSubAccountName
@@ -432,7 +432,7 @@ Resources:
     Properties:
       TemplateURL: !Sub "https://${pSRASourceS3BucketName}.s3.${pSRAS3BucketRegion}.${AWS::URLSuffix}/${pSRAStagingS3KeyPrefix}/submodules/cfn-abi-aws-securityhub/templates/sra-securityhub-enable-in-org-ssm.yaml"
       Parameters:
-        pSRASourceS3BucketName: aws-abi-pilot
+        pSRASourceS3BucketName: !Ref pSRASourceS3BucketName
         pSRAStagingS3KeyPrefix: cfn-abi-aws-securityhub
         pCISStandardVersion: !Ref pCISStandardVersion
         pComplianceFrequency: !Ref pComplianceFrequency
@@ -457,7 +457,7 @@ Resources:
     Properties:
       TemplateURL: !Sub "https://${pSRASourceS3BucketName}.s3.${pSRAS3BucketRegion}.${AWS::URLSuffix}/${pSRAStagingS3KeyPrefix}/submodules/cfn-abi-amazon-guardduty/templates/sra-guardduty-enable-in-org-ssm.yaml"
       Parameters:
-        pSRASourceS3BucketName: aws-abi-pilot
+        pSRASourceS3BucketName: !Ref pSRASourceS3BucketName
         pSRAStagingS3KeyPrefix: cfn-abi-amazon-guardduty
       Tags:
         - Key: sra-solution
