@@ -1,9 +1,3 @@
----
-title: Lacework AWS Built-in Package
-keywords: ["security hub","aws","composite alerts","amazon", "guardduty", "control tower"]
-slug: aws-built-in-package
----
-
 ## Overview
 
 With the Lacework AWS Built-in Package, enrolling a new AWS account ensures security best practices and monitoring are
@@ -48,12 +42,10 @@ If the [Lacework Organization](https://docs.lacework.com/console/organization-ov
 
 ### 3. AWS Organizational Units (OUs) to Lacework Sub-Account Mapping with Lacework Organization
 
-:::note
 - You must have the <a href="https://docs.lacework.com/console/organization-overview">Lacework Organization</a> feature enabled.
 - When naming the OUs, ensure to not include spaces in the names (hyphens are allowed). <br />
     - Dev Infra  :x: <br />
     - Dev-Infra :white_check_mark:
-      :::
 
 ## Configure the Lacework AWS Built-in Package
 
@@ -74,7 +66,7 @@ If the [Lacework Organization](https://docs.lacework.com/console/organization-ov
 
 1. Click the following **Launch Stack** button to go to your CloudFormation console and launch the AWS Control Integration template.
 
-   <a href="https://console.aws.amazon.com/cloudformation/home?#/stacks/create/review?templateURL=https://lacework-aws-built-in-gandalf.netlify.app/onboarding/aws-built-in-package"><img src="https://dmhnzl5mp9mj6.cloudfront.net/application-management_awsblog/images/cloudformation-launch-stack.png"></img></a>
+   [![Launch](https://user-images.githubusercontent.com/6440106/153987820-e1f32423-1e69-416d-8bca-2ee3a1e85df1.png)](https://console.aws.amazon.com/cloudformation/home?#/stacks/create/review?templateURL=https://lacework-alliances.s3.us-west-2.amazonaws.com/lacework-control-tower-cfn/templates/control-tower-integration.template.yml)
 
    For most deployments, you need only Basic Configuration parameters.
 2. Specify the following Basic Configuration parameters:
@@ -123,9 +115,7 @@ Once the Control Tower CloudFormation deployment is competed, you need to setup 
 
 To remove the Lacework's AWS Built-in Pacakge, simply delete the main stack. All CloudFormation stacksets, stack instances, and Lambda functions will be deleted.
 
-:::note
 Lacework will no longer monitor your AWS cloud environment.
-:::
 
 ## Permissions
 
