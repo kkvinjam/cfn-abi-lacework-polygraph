@@ -435,7 +435,7 @@ Resources:
   LaceworkControlTowerCfn:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://${pSRASourceS3BucketName}.s3.${pSRAS3BucketRegion}.${AWS::URLSuffix}/${pSRAStagingS3KeyPrefix}/submodules/lacework-control-tower-cfn/templates/control-tower-integration.template.yaml"
+      TemplateURL: !Sub "https://${pSRASourceS3BucketName}.s3.${pSRAS3BucketRegion}.${AWS::URLSuffix}/${pSRAStagingS3KeyPrefix}/submodules/lacework-control-tower-cfn/templates/cfn-abi-control-tower-integration.template.yaml"
       Parameters:
         S3BucketName: !Ref pSRASourceS3BucketName
         S3KeyPrefix: !Ref pSRAStagingS3KeyPrefix
@@ -488,3 +488,16 @@ Resources:
       Tags:
         - Key: sra-solution
           Value: !Ref pSRAStagingS3KeyPrefix
+
+  LaceworkSecurityHubCfn:
+    Type: AWS::CloudFormation::Stack
+    DependsOn:
+      - LaceworkControlTowerCfn
+      - CfnAbiAwsSecurityHub
+      - CfnAbiAmazonGuardDuty
+    Properties:
+      TemplateURL: !Sub "https://${pSRASourceS3BucketName}.s3.${pSRAS3BucketRegion}.${AWS::URLSuffix}/${pSRAStagingS3KeyPrefix}/cfn-abi-lacework-sec-hub-ingest.yaml"
+      Parameters:
+        LaceworkAccount: !Select [ 0, !Split [ '.', !Ref LaceworkURL ] ]
+        ExternalID: !Select [ 4, !Split [ '-', !Select [ 2, !Split [ '/', !Ref AWS::StackId ] ] ] ]
+        ApiToken: "{{resolve:secretsmanager:LaceworkApiCredentials:SecretString:AccessToken}}"
