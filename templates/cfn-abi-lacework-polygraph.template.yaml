@@ -438,7 +438,7 @@ Resources:
       TemplateURL: !Sub "https://${pSRASourceS3BucketName}.s3.${pSRAS3BucketRegion}.${AWS::URLSuffix}/${pSRAStagingS3KeyPrefix}/submodules/lacework-control-tower-cfn/templates/control-tower-integration.template.yaml"
       Parameters:
         S3BucketName: !Ref pSRASourceS3BucketName
-        S3KeyPrefix: lacework-control-tower-cfn
+        S3KeyPrefix: !Ref pSRAStagingS3KeyPrefix
         LaceworkURL: !Ref LaceworkURL
         LaceworkOrgSubAccountNames: !Ref LaceworkOrgSubAccountNames
         LaceworkSubAccountName: !Ref LaceworkSubAccountName
@@ -455,7 +455,7 @@ Resources:
     Properties:
       TemplateURL: !Sub "https://${pSRASourceS3BucketName}.s3.${pSRAS3BucketRegion}.${AWS::URLSuffix}/${pSRAStagingS3KeyPrefix}/submodules/cfn-abi-aws-securityhub/templates/sra-securityhub-enable-in-org-ssm.yaml"
       Parameters:
-        pSRASourceS3BucketName: !Ref pSRASourceS3BucketName
+        pSRASourceS3BucketName: aws-abi-pilot
         pSRAStagingS3KeyPrefix: cfn-abi-aws-securityhub
         pCISStandardVersion: !Ref pCISStandardVersion
         pComplianceFrequency: !Ref pComplianceFrequency
@@ -482,6 +482,9 @@ Resources:
       Parameters:
         pSRASourceS3BucketName: !Ref pSRASourceS3BucketName
         pSRAStagingS3KeyPrefix: cfn-abi-amazon-guardduty
+        pAutoEnableS3Logs: !Ref pAutoEnableS3Logs
+        pAutoEnableK8sLogs: !Ref pAutoEnableK8sLogs
+        pAutoEnableMalwareProtection: !Ref pAutoEnableMalwareProtection
       Tags:
         - Key: sra-solution
           Value: !Ref pSRAStagingS3KeyPrefix
