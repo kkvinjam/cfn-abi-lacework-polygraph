@@ -13,7 +13,7 @@ tests:
     parameters:
       pSRAStagingS3KeyPrefix: $[taskcat_project_name]
       pSRASourceS3BucketName: $[taskcat_autobucket]
-      pSRAS3BucketRegion: us-east-1  # Bucket region. Keep it to us-east-1 as all the resources are deployed in the region.
+      pSRAS3BucketRegion: $[taskcat_current_region]
       LaceworkURL: laceworkalliances.lacework.net
       LaceworkAccessKeyID: $[taskcat_ssm_/lacework/LaceworkAccessKeyID]
       LaceworkSecretKey: $[taskcat_ssm_/lacework/LaceworkSecretKey]
