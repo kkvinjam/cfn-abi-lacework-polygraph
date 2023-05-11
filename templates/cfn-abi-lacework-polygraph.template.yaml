@@ -326,112 +326,6 @@ Parameters:
     MaxValue: 30
     Type: Number
 Resources:
-  LaceworkSetupFunction:
-    Type: AWS::Lambda::Function
-    Properties:
-      Code:
-        S3Bucket: !Ref pSRASourceS3BucketName
-        S3Key: !Sub ${pSRAStagingS3KeyPrefix}/lambda_functions/packages/lacework-sec-hub-ingest/lambda.zip
-      Handler: setup.lambda_handler
-      Runtime: python3.7
-      Timeout: 900
-      Environment:
-        Variables:
-          lacework_url: !Ref LaceworkURL
-          lacework_sub_account_name: !Ref LaceworkSubAccountName
-          api_token: "{{resolve:secretsmanager:LaceworkApiCredentials:SecretString:AccessToken}}"
-          sec_hub_ingest_template: !Sub "https://${pSRASourceS3BucketName}.s3.${pSRAS3BucketRegion}.${AWS::URLSuffix}/${pSRAStagingS3KeyPrefix}/templates/cfn-abi-lacework-sec-hub-ingest.yaml"
-          cfn_stack: !Ref AWS::StackName
-          cfn_stack_id: !Ref AWS::StackId
-      Role: !GetAtt LaceworkSetupFunctionRole.Arn
-
-  LaceworkSetupFunctionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action: sts:AssumeRole
-      Path: /
-      Policies:
-        - PolicyName: Setup_Operations
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Sid: StackOperations
-                Effect: Allow
-                Action:
-                  - cloudformation:DescribeStacks
-                Resource:
-                  !Join [ '', [ 'arn:aws:cloudformation:', '*', ':', '*', ':stack/*' ] ]
-              - Sid: AccountStatusCheck
-                Effect: Allow
-                Action:
-                  - organizations:DescribeAccount
-                Resource:
-                  !Join [ '', [ 'arn:aws:organizations::', !Ref 'AWS::AccountId', ':account/', '*' ,'/','*'] ]
-              - Sid: StackSetInstanceCreate
-                Effect: Allow
-                Action:
-                  - cloudformation:CreateStackInstances
-                  - cloudformation:ListStackInstances
-                  - cloudformation:TagResource
-                  - organizations:DescribeAccount
-                Resource:
-                  !Join ['', ['arn:aws:cloudformation:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':stackset/', '*' ]]
-              - Sid: StackSetInstanceDelete
-                Effect: Allow
-                Action:
-                  - cloudformation:DeleteStackSet
-                  - cloudformation:DeleteStackInstances
-                  - cloudformation:DescribeStackSetOperation
-                Resource:
-                  !Join ['', ['arn:aws:cloudformation:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':stackset/', '*' ]]
-              - Sid: StackSetCreate
-                Effect: Allow
-                Action:
-                  - cloudformation:CreateStackSet
-                  - cloudformation:DescribeStackSet
-                Resource:
-                  !Join ['', ['arn:aws:cloudformation:', '*', ':', '*', ':stackset/', '*' ]]
-              - Sid: S3Ops
-                Effect: Allow
-                Action:
-                  - s3:ListBucket
-                  - s3:GetObject
-                Resource:
-                  - !Join ['',['arn:aws:s3:::', !Ref pSRASourceS3BucketName, '/', !Ref pSRAStagingS3KeyPrefix, '*']]
-              - Sid: PassRole
-                Effect: Allow
-                Action:
-                  - iam:PassRole
-                Resource: !Join [':', ['arn:aws:iam:', !Ref 'AWS::AccountId', 'role/service-role/AWSControlTowerStackSetRole' ]]
-              - Sid: ListAccounts
-                Effect: Allow
-                Action:
-                  - organizations:ListAccounts
-                Resource: "*"
-              - Sid: QueryAccounts
-                Effect: Allow
-                Action:
-                  - organizations:DescribeAccount
-                  - organizations:DescribeOrganization
-                  - organizations:DescribeOrganizationalUnit
-                  - organizations:ListParents
-                Resource: "*"
-      ManagedPolicyArns:
-        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
-
-  LaceworkSetup:
-    Type: AWS::CloudFormation::CustomResource
-    DependsOn: LaceworkControlTowerCfn
-    Properties:
-      ServiceToken:
-        !GetAtt LaceworkSetupFunction.Arn
-
   LaceworkControlTowerCfn:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -488,7 +382,6 @@ Resources:
       Tags:
         - Key: sra-solution
           Value: !Ref pSRAStagingS3KeyPrefix
-
   LaceworkSecurityHubCfn:
     Type: AWS::CloudFormation::Stack
     DependsOn:

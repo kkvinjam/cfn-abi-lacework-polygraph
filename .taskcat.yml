@@ -2,7 +2,7 @@ project:
   name: cfn-abi-lacework-polygraph
   owner: jeff.fry@lacework.net
   package_lambda: true
-  s3_regional_buckets: false
+  s3_regional_buckets: true
   regions:
   - us-west-2
 tests:
@@ -11,10 +11,10 @@ tests:
       - us-west-2  # Control Tower Home region for Pilot
     template: templates/cfn-abi-lacework-polygraph.template.yaml
     parameters:
-      rSRAStagingS3Bucket: $[taskcat_autobucket]
+      pSRAStagingS3KeyPrefix: $[taskcat_project_name]
       pSRASourceS3BucketName: $[taskcat_autobucket]
       pSRAS3BucketRegion: us-east-1  # Bucket region. Keep it to us-east-1 as all the resources are deployed in the region.
       LaceworkURL: laceworkalliances.lacework.net
-      LaceworkAccessKeyID: LACEWORK_A0CF5408974238C70DB1CC9C6005B4D5A62C2BBBCE72962
-      LaceworkSecretKey: _6f931ad79e9423c0e877ec510963d928
+      LaceworkAccessKeyID: $[taskcat_ssm_/lacework/LaceworkAccessKeyID]
+      LaceworkSecretKey: $[taskcat_ssm_/lacework/LaceworkSecretKey]
       LaceworkOrgSubAccountNames: cloud-engineering,dpaas
