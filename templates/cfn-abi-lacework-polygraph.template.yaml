@@ -349,8 +349,8 @@ Resources:
     Properties:
       TemplateURL: !Sub "https://${pSRASourceS3BucketName}.s3.${pSRAS3BucketRegion}.${AWS::URLSuffix}/${pSRAStagingS3KeyPrefix}/submodules/cfn-abi-aws-securityhub/templates/sra-securityhub-enable-in-org-ssm.yaml"
       Parameters:
-        pSRAS3BucketRegion: !Sub ${AWS::Region}
         pSRASourceS3BucketName: aws-abi-pilot
+        pSRAS3BucketRegion: !Sub ${AWS::Region}
         pSRAStagingS3KeyPrefix: cfn-abi-aws-securityhub
         pCISStandardVersion: !Ref pCISStandardVersion
         pComplianceFrequency: !Ref pComplianceFrequency
@@ -375,8 +375,8 @@ Resources:
     Properties:
       TemplateURL: !Sub "https://${pSRASourceS3BucketName}.s3.${pSRAS3BucketRegion}.${AWS::URLSuffix}/${pSRAStagingS3KeyPrefix}/submodules/cfn-abi-amazon-guardduty/templates/sra-guardduty-enable-in-org-ssm.yaml"
       Parameters:
-        pSRAS3BucketRegion: !Sub ${AWS::Region}
         pSRASourceS3BucketName: aws-abi-pilot
+        pSRAS3BucketRegion: !Sub ${AWS::Region}
         pSRAStagingS3KeyPrefix: cfn-abi-amazon-guardduty
         pAutoEnableS3Logs: !Ref pAutoEnableS3Logs
         pAutoEnableK8sLogs: !Ref pAutoEnableK8sLogs
