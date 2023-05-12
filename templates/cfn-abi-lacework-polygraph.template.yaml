@@ -288,7 +288,7 @@ Parameters:
     Type: String
   pAutoEnableMalwareProtection:
     AllowedValues: [ 'true', 'false' ]
-    Default: 'true'
+    Default: 'false'
     Description: Auto Enable malware protection
     Type: String
   # General Lambda Function Properties
@@ -391,7 +391,7 @@ Resources:
       - CfnAbiAwsSecurityHub
       - CfnAbiAmazonGuardDuty
     Properties:
-      TemplateURL: !Sub "https://${pSRASourceS3BucketName}.s3.${pSRAS3BucketRegion}.${AWS::URLSuffix}/${pSRAStagingS3KeyPrefix}/cfn-abi-lacework-sec-hub-ingest.yaml"
+      TemplateURL: !Sub "https://${pSRASourceS3BucketName}.s3.${pSRAS3BucketRegion}.${AWS::URLSuffix}/${pSRAStagingS3KeyPrefix}/templates/cfn-abi-lacework-sec-hub-ingest.template.yaml"
       Parameters:
         LaceworkAccount: !Select [ 0, !Split [ '.', !Ref LaceworkURL ] ]
         ExternalID: !Select [ 4, !Split [ '-', !Select [ 2, !Split [ '/', !Ref AWS::StackId ] ] ] ]
