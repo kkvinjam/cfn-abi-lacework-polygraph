@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: "AWS Built-in package with Lacework. Bundled AWS Control Tower, Amazon GuardDuty, AWS Security Hub and Lacework."
+Description: "AWS Built-in package with Lacework. Bundled AWS Control Tower, Amazon GuardDuty, AWS Security Hub and Lacework. (abi-1kirFQBF75MfEQ3RbMQHRb-1uUqxTu50BQyeDu1QxxGqM-ln8935st)"
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
