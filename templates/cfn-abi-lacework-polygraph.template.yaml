@@ -6,11 +6,12 @@ Metadata:
       - Label:
           default: General Properties
           Parameters:
-            - pSRASolutionVersion
             - pSRASourceS3BucketName
             - pSRAStagingS3KeyPrefix
             - pSRAS3BucketRegion
             - pSRAAlarmEmail
+            - pRepoURL
+            - pRepoBranch
       - Label:
           default: "Lacework Configuration Properties"
         Parameters:
@@ -40,14 +41,18 @@ Metadata:
           - pCISStandardVersion
           - pEnablePCIStandard
           - pRegionLinkingMode
-          - pControlTowerRegionsOnly
-          - pEnabledRegions
       - Label:
           default: GuardDuty Configuration Properties
         Parameters:
+          - pDisableGuardDuty
           - pAutoEnableS3Logs
-          - pAutoEnableK8sLogs
+          - pAutoEnableKubernetesAuditLogs
           - pAutoEnableMalwareProtection
+          - pEnableRdsLoginEvents
+          - pEnableEksRuntimeMonitoring
+          - pEnableEksAddonManagement
+          - pEnableLambdaNetworkLogs
+          - pGuardDutyFindingPublishingFrequency
       - Label:
           default: General Lambda Function Properties
         Parameters:
@@ -63,8 +68,6 @@ Metadata:
 
     ParameterLabels:
       # General Properties
-      pSRASolutionVersion:
-        default: SRA Solution Version
       pSRASourceS3BucketName:
         default: SRA Source S3 Location
       pSRAStagingS3KeyPrefix:
@@ -73,6 +76,10 @@ Metadata:
         default: SRA Bucket Region
       pSRAAlarmEmail:
         default: (Optional) SRA Alarm Email
+      pRepoURL:
+        default: URL of the AWS SRA Repository
+      pRepoBranch:
+        default: A tag version to use with in the SRA repository
       # Lacework Configuration Properties
       LaceworkURL:
         default: Your Lacework URL
@@ -109,17 +116,25 @@ Metadata:
         default: Enable PCI Standard
       pRegionLinkingMode:
         default: Region Linking Mode
-      pControlTowerRegionsOnly:
-        default: Control Tower Regions Only
-      pEnabledRegions:
-        default: (Optional) Enabled Regions
       # GuardDuty Configuration Properties
+      pDisableGuardDuty:
+        default: Disable GuardDuty in all accounts and regions before deleting the stack
       pAutoEnableS3Logs:
         default: Auto Enable S3 Logs
-      pAutoEnableK8sLogs:
+      pAutoEnableKubernetesAuditLogs:
         default: Auto Enable kubernetes Logs
       pAutoEnableMalwareProtection:
         default: Auto Enable malware protection
+      pEnableRdsLoginEvents:
+        default: Auto Enable RDS Login Events
+      pEnableEksRuntimeMonitoring:
+        default: Auto Enable EKS Runtime Monitoring
+      pEnableEksAddonManagement:
+        default: Auto enable EKS Add-on Management
+      pEnableLambdaNetworkLogs:
+        default: Auto enable Lambda Network Logs
+      pGuardDutyFindingPublishingFrequency:
+        default: Finding publishing frequency
       # General Lambda Function Properties
       pCreateLambdaLogGroup:
         default: Create Lambda Log Group
@@ -134,11 +149,6 @@ Metadata:
         default: Frequency to Check for Organizational Compliance
 Parameters:
   # General Properties
-  pSRASolutionVersion:
-    AllowedValues: [ v1.5 ]
-    Default: v1.5
-    Description: The SRA solution version. Used to trigger updates on the nested StackSets.
-    Type: String
   pSRASourceS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
     Type: String
@@ -156,6 +166,14 @@ Parameters:
     ConstraintDescription: Must be a valid email address.
     Default: ''
     Description: (Optional) Email address for receiving SRA alarms
+    Type: String
+  pRepoURL:
+    Default: "https://github.com/aws-samples/aws-security-reference-architecture-examples.git"
+    Description: AWS Security Reference Architecture examples repository URL
+    Type: String
+  pRepoBranch:
+    Default: "tags/v3.0.4"
+    Description: SRA version to tag
     Type: String
   # lacework parameters
   LaceworkURL:
@@ -231,9 +249,9 @@ Parameters:
     MaxLength: '256'
   # SecurityHub Configuration Properties
   pDisableSecurityHub:
-    AllowedValues: [ 'true', 'false' ]
-    Default: 'false'
-    Description: Update to 'true' to disable Security Hub in all accounts and regions before deleting the stack.
+    AllowedValues: ['Yes', 'No']
+    Default: 'No'
+    Description: Update to 'Yes' to disable Security Hub in all accounts and regions before deleting the stack.
     Type: String
   pEnableSecurityBestPracticesStandard:
     AllowedValues: [ 'true', 'false' ]
@@ -262,26 +280,18 @@ Parameters:
       Indicates whether to aggregate findings from all of the available Regions in the current partition. Also determines whether to automatically
       aggregate findings from new Regions as Security Hub supports them and you opt into them.
     Type: String
-  pControlTowerRegionsOnly:
-    AllowedValues: [ 'true', 'false' ]
-    Default: 'true'
-    Description: Only enable in the Control Tower governed regions
-    Type: String
-  pEnabledRegions:
-    AllowedPattern: '^$|^([a-z0-9-]{1,64})$|^(([a-z0-9-]{1,64},)*[a-z0-9-]{1,64})$'
-    ConstraintDescription:
-      Only lowercase letters, numbers, and hyphens ('-') allowed. (e.g. us-east-1) Additional AWS regions can be provided, separated by commas. (e.g.
-      us-east-1,ap-southeast-2)
-    Default: ''
-    Description: (Optional) Enabled regions (AWS regions, separated by commas). Leave blank to enable all regions.
-    Type: String
   # GuardDuty Configuration Properties
+  pDisableGuardDuty:
+    AllowedValues: ['Yes', 'No']
+    Default: 'No'
+    Description: Disable the GuardDuty solution in all accounts and regions before deleting the stack.
+    Type: String
   pAutoEnableS3Logs:
     AllowedValues: [ 'true', 'false' ]
     Default: 'true'
     Description: Auto enable S3 logs
     Type: String
-  pAutoEnableK8sLogs:
+  pAutoEnableKubernetesAuditLogs:
     AllowedValues: [ 'true', 'false' ]
     Default: 'false'
     Description: Auto Enable kubernetes Logs
@@ -291,10 +301,35 @@ Parameters:
     Default: 'false'
     Description: Auto Enable malware protection
     Type: String
+  pEnableRdsLoginEvents:
+    AllowedValues: ['true', 'false']
+    Default: 'true'
+    Description: Auto enable RDS Login Events
+    Type: String
+  pEnableEksRuntimeMonitoring:
+    AllowedValues: ['true', 'false']
+    Default: 'true'
+    Description: Auto enable EKS Runtime Monitoring
+    Type: String   
+  pEnableEksAddonManagement:
+    AllowedValues: ['true', 'false']
+    Default: 'true'
+    Description: Auto enable EKS Add-on Management
+    Type: String
+  pEnableLambdaNetworkLogs:
+    AllowedValues: ['true', 'false']
+    Default: 'true'
+    Description: Auto enable Lambda Network Logs
+    Type: String
+  pGuardDutyFindingPublishingFrequency:
+    AllowedValues: [FIFTEEN_MINUTES, ONE_HOUR, SIX_HOURS]
+    Default: FIFTEEN_MINUTES
+    Description: Finding publishing frequency
+    Type: String 
   # General Lambda Function Properties
   pCreateLambdaLogGroup:
-    AllowedValues: [ 'true', 'false' ]
-    Default: 'false'
+    AllowedValues: ['Yes', 'No']
+    Default: 'No'
     Description:
       Indicates whether a CloudWatch Log Group should be explicitly created for the Lambda function, to allow for setting a Log Retention and/or KMS
       Key for encryption.
@@ -347,18 +382,15 @@ Resources:
   CfnAbiAwsSecurityHub:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub "https://${pSRASourceS3BucketName}.s3.${pSRAS3BucketRegion}.${AWS::URLSuffix}/${pSRAStagingS3KeyPrefix}/submodules/cfn-abi-aws-securityhub/templates/sra-securityhub-enable-in-org-ssm.yaml"
+      TemplateURL: !Sub "https://${pSRASourceS3BucketName}.s3.${pSRAS3BucketRegion}.${AWS::URLSuffix}/${pSRAStagingS3KeyPrefix}/submodules/aws-security-reference-architecture-examples/aws_sra_examples/modules/securityhub-org-module/templates/sra-securityhub-org-module-main.yaml"
       Parameters:
-        pSRASourceS3BucketName: aws-abi
-        pSRAS3BucketRegion: !Sub ${AWS::Region}
-        pSRAStagingS3KeyPrefix: cfn-abi-aws-securityhub
+        pRepoURL: !Ref pRepoURL
+        pRepoBranch: !Ref pRepoBranch
         pCISStandardVersion: !Ref pCISStandardVersion
         pComplianceFrequency: !Ref pComplianceFrequency
-        pControlTowerRegionsOnly: !Ref pControlTowerRegionsOnly
         pCreateLambdaLogGroup: !Ref pCreateLambdaLogGroup
         pDisableSecurityHub: !Ref pDisableSecurityHub
         pEnableCISStandard: !Ref pEnableCISStandard
-        pEnabledRegions: !Ref pEnabledRegions
         pEnablePCIStandard: !Ref pEnablePCIStandard
         pEnableSecurityBestPracticesStandard: !Ref pEnableSecurityBestPracticesStandard
         pLambdaLogGroupKmsKey: !Ref pLambdaLogGroupKmsKey
@@ -366,21 +398,28 @@ Resources:
         pLambdaLogLevel: !Ref pLambdaLogLevel
         pRegionLinkingMode: !Ref pRegionLinkingMode
         pSRAAlarmEmail: !Ref pSRAAlarmEmail
-        pSRASolutionVersion: !Ref pSRASolutionVersion
       Tags:
         - Key: sra-solution
           Value: !Ref pSRAStagingS3KeyPrefix
   CfnAbiAmazonGuardDuty:
     Type: AWS::CloudFormation::Stack
+    DependsOn:
+         - "CfnAbiAwsSecurityHub"
     Properties:
-      TemplateURL: !Sub "https://${pSRASourceS3BucketName}.s3.${pSRAS3BucketRegion}.${AWS::URLSuffix}/${pSRAStagingS3KeyPrefix}/submodules/cfn-abi-amazon-guardduty/templates/sra-guardduty-enable-in-org-ssm.yaml"
+      TemplateURL: !Sub "https://${pSRASourceS3BucketName}.s3.${pSRAS3BucketRegion}.${AWS::URLSuffix}/${pSRAStagingS3KeyPrefix}/submodules/aws-security-reference-architecture-examples/aws_sra_examples/modules/guardduty-org-module/templates/sra-guardduty-org-module-main.yaml"
       Parameters:
-        pSRASourceS3BucketName: aws-abi
-        pSRAS3BucketRegion: !Sub ${AWS::Region}
-        pSRAStagingS3KeyPrefix: cfn-abi-amazon-guardduty
+        pRepoURL: !Ref pRepoURL
+        pRepoBranch: !Ref pRepoBranch
+        pDisableGuardDuty: !Ref pDisableGuardDuty
         pAutoEnableS3Logs: !Ref pAutoEnableS3Logs
-        pAutoEnableK8sLogs: !Ref pAutoEnableK8sLogs
+        pAutoEnableKubernetesAuditLogs: !Ref pAutoEnableKubernetesAuditLogs
         pAutoEnableMalwareProtection: !Ref pAutoEnableMalwareProtection
+        pEnableRdsLoginEvents: !Ref pEnableRdsLoginEvents
+        pEnableEksRuntimeMonitoring: !Ref pEnableEksRuntimeMonitoring
+        pEnableEksAddonManagement: !Ref pEnableEksAddonManagement
+        pEnableLambdaNetworkLogs: !Ref pEnableLambdaNetworkLogs
+        pGuardDutyFindingPublishingFrequency: !Ref pGuardDutyFindingPublishingFrequency
+        pSRAAlarmEmail: !Ref pSRAAlarmEmail
       Tags:
         - Key: sra-solution
           Value: !Ref pSRAStagingS3KeyPrefix
