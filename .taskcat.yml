@@ -17,3 +17,4 @@ tests:
       LaceworkURL: laceworkalliances.lacework.net
       LaceworkAccessKeyID: $[taskcat_ssm_/lacework/LaceworkAccessKeyID]
       LaceworkSecretKey: $[taskcat_ssm_/lacework/LaceworkSecretKey]
+      pDisableGuardDuty: 'Yes'

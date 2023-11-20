@@ -183,3 +183,6 @@ aggregated_results.txt
 
 # Package files
 lambda.zip
+
+# Visual Studio Code IDE
+.vscode/
