@@ -8,13 +8,13 @@ project:
 tests:
   cfn-abi-lacework-polygraph-multi-org-multi-sub-mapping:
     regions:
-      - us-east-1 # Control Tower Home region for Pilot
+      - us-west-2 # Control Tower Home region for Pilot
     template: templates/cfn-abi-lacework-polygraph.template.yaml
     parameters:
       pSRAStagingS3KeyPrefix: $[taskcat_project_name]
       pSRASourceS3BucketName: $[taskcat_autobucket]
-      pSRAS3BucketRegion: $[taskcat_current_region]
-      LaceworkURL: laceworkalliances.lacework.net
+      pSRAS3BucketRegion: us-east-1
+      LaceworkURL: 'laceworkalliances.lacework.net'
       LaceworkAccessKeyID: $[taskcat_ssm_/lacework/LaceworkAccessKeyID]
       LaceworkSecretKey: $[taskcat_ssm_/lacework/LaceworkSecretKey]
       pDisableGuardDuty: 'Yes'
